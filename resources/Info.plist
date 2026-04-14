@@ -30,5 +30,10 @@
     <string>© 2026 choiyounggi. MIT License.</string>
     <key>LSApplicationCategoryType</key>
     <string>public.app-category.social-networking</string>
+    <key>NSAppTransportSecurity</key>
+    <dict>
+        <key>NSAllowsArbitraryLoads</key>
+        <true/>
+    </dict>
 </dict>
 </plist>
