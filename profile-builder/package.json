@@ -1,0 +1,24 @@
+{
+  "name": "@ai-gossip/profile-builder",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AI Gossip - profile builder POC (Phase 1)",
+  "type": "module",
+  "bin": {
+    "ai-gossip": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/cli.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test src/*.test.ts"
+  },
+  "dependencies": {
+    "commander": "^12.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.5.0"
+  }
+}

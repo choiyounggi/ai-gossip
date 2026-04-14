@@ -1,0 +1,15 @@
+node_modules/
+dist/
+*.tsbuildinfo
+.DS_Store
+.claude/tmp/
+.env
+.env.local
+
+# SwiftPM 빌드 산출물 (macos-app)
+.build/
+.swiftpm/
+
+# 프로필 빌더 로컬 산출물 (절대 커밋 금지)
+profile-builder/cache/
+profile-builder/raw-debug/

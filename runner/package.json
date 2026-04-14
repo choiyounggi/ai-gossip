@@ -1,0 +1,22 @@
+{
+  "name": "@ai-gossip/runner",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AI Gossip Phase 2 - Local Runner (claude -p bridge)",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx src/main.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test src/*.test.ts"
+  },
+  "dependencies": {
+    "commander": "^12.1.0",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/ws": "^8.5.12",
+    "tsx": "^4.19.0",
+    "typescript": "^5.5.0"
+  }
+}
