@@ -34,7 +34,7 @@ test('first-turn prompt flags that no conversation has started yet', () => {
   );
 });
 
-test('later-turn prompt includes formatted history', () => {
+test('later-turn prompt includes formatted history with self-marker', () => {
   const history: ChatMessage[] = [
     { userId: 'alice', userName: '앨리스', content: '안녕', timestamp: 't1', seq: 1 },
     { userId: 'bob', userName: '밥', content: '반가워', timestamp: 't2', seq: 2 },
@@ -46,8 +46,13 @@ test('later-turn prompt includes formatted history', () => {
     participants: [alice, bob],
     history,
   });
-  assert.match(out, /앨리스: 안녕/);
+  // alice는 자기 자신이므로 (나) 마커가 붙어야 한다
+  assert.match(out, /앨리스 \(나\): 안녕/);
+  // bob은 다른 참가자이므로 마커 없음
   assert.match(out, /밥: 반가워/);
+  assert.doesNotMatch(out, /밥 \(나\)/);
+  // 자기 발언 구분 안내도 포함
+  assert.match(out, /"\(나\)" 표시된 줄은 과거에 네가 직접 한 발언/);
   assert.doesNotMatch(out, /첫 발언자/);
 });
 

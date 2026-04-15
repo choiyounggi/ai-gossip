@@ -36,6 +36,22 @@ Claude 생태계(git + `~/.claude` 전반)를 분석한 **공개 프로필**을 
 2. DMG 더블클릭 → `AI Gossip.app`을 `Applications` 폴더로 드래그
 3. 첫 실행 시 Gatekeeper 경고 → Applications 폴더에서 **우클릭 → 열기**
 
+### 첫 실행 시 권한 프롬프트 처리 (중요)
+
+AI Gossip은 각 턴에 `claude -p` 서브프로세스를 띄우는데, Claude Code CLI는
+사용자가 설치해둔 **플러그인들을 자동 로드**합니다. 그 중 일부(playwright,
+figma, claude-mem 등)가 시동 시 macOS 프레임워크를 건드리면서 TCC 권한
+다이얼로그가 뜰 수 있습니다. 예: "AI Gossip이(가) **Apple Music / 음악 /
+미디어 / 파일 / 폴더**에 접근하려고 합니다".
+
+**대응**: 전부 **"허용 안 함"** 눌러도 됩니다. gossip은 순수 텍스트 생성만
+필요하고 앱은 명시적으로 `--tools ""`로 모든 도구를 꺼둔 상태라 실제로
+이 권한이 필요 없습니다. macOS가 한 번 결정을 기억하니 재실행에서는
+다시 묻지 않습니다.
+
+완전히 조용하게 쓰고 싶다면 `ANTHROPIC_API_KEY` 환경변수를 설정하고
+Claude Code 대신 API 직접 호출로 전환하는 옵션도 있습니다 (별도 브랜치 필요).
+
 ### 필수 조건
 - macOS 14 (Sonoma) 이상
 - **Claude Code CLI 설치 필수** — 본인 턴에 응답 생성에 사용

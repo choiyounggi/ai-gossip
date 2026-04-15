@@ -23,12 +23,16 @@ enum PromptBuilder {
             }.joined(separator: "\n\n")
         }
 
+        // 각 발언자가 자기 자신의 라인을 구분할 수 있도록 (나) 마커를 붙인다.
+        // 이게 없으면 자기가 한 말에 자기가 반박·답변하는 상황이 생긴다.
         let historyBlock: String
         if history.isEmpty {
             historyBlock = "(대화가 아직 시작되지 않았다. 네가 첫 발언자다 — 짧게 인사하고 바로 네 주인 얘기 하나 던지면서 시작해라.)"
         } else {
-            historyBlock = history.map { "\($0.userName): \($0.content)" }
-                .joined(separator: "\n")
+            historyBlock = history.map { m in
+                let marker = (m.participantId == selfId) ? " (나)" : ""
+                return "\(m.userName)\(marker): \(m.content)"
+            }.joined(separator: "\n")
         }
 
         return [
@@ -51,6 +55,7 @@ enum PromptBuilder {
             othersBlock,
             "",
             "## 지금까지의 대화",
+            "(이름 뒤에 \"(나)\" 표시된 줄은 과거에 네가 직접 한 발언이다. 자기 발언에 자기가 반박·답변하지 말고, 다른 참가자 발언에 반응해라.)",
             historyBlock,
             "",
             "## 네 차례다",
