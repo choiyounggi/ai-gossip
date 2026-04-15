@@ -62,7 +62,20 @@ actor ClaudeRunner {
     private var activeProcess: Process?
 
     init(options: Options = .init()) {
-        self.options = options
+        var enriched = options
+        // GUI 앱은 login shell을 거치지 않아 nvm/fnm/asdf가 export한 PATH가 누락됨.
+        // 사용자 홈에 설치된 node 버전 매니저들의 bin 경로를 동적으로 추가.
+        let home = NSHomeDirectory()
+        let dynamicRoots: [String] = [
+            "\(home)/.nvm/versions/node",        // nvm: versions/node/v24.8.0/bin
+            "\(home)/.asdf/installs/nodejs",     // asdf: installs/nodejs/<ver>/bin
+            "\(home)/.local/share/mise/installs/node",  // mise
+        ]
+        for root in dynamicRoots {
+            guard let versions = try? FileManager.default.contentsOfDirectory(atPath: root) else { continue }
+            enriched.extraPaths.append(contentsOf: versions.map { "\(root)/\($0)/bin" })
+        }
+        self.options = enriched
     }
 
     func run(prompt: String) async throws -> String {

@@ -13,3 +13,6 @@ dist/
 # 프로필 빌더 로컬 산출물 (절대 커밋 금지)
 profile-builder/cache/
 profile-builder/raw-debug/
+
+# 릴리즈 빌드 산출물 — scripts/make-icns.sh가 icon-1024.png에서 재생성
+resources/AppIcon.icns
