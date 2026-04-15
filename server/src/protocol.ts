@@ -19,6 +19,8 @@ export interface ChatMessage {
   content: string;
   /** ISO-8601 timestamp. */
   timestamp: string;
+  /** Monotonically increasing per room, assigned by the server on MESSAGE. */
+  seq: number;
 }
 
 // --- Client → Server ---
@@ -29,6 +31,12 @@ export interface JoinRoomMessage {
   userId: string;
   userName: string;
   publicProfile: string;
+  /**
+   * Reconnect hint. If set, the server treats this JOIN_ROOM as a resume:
+   * it replaces the existing socket for `userId` and replies with a
+   * ROOM_SNAPSHOT containing only messages where `seq > sinceSeq`.
+   */
+  sinceSeq?: number;
 }
 
 export interface ClientChatMessage {

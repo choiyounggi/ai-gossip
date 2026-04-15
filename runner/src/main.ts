@@ -37,6 +37,10 @@ const claude = opts.echo
   ? { run: async (_: string): Promise<string> => `(echo from ${userName})` }
   : createClaudeRunner({ claudeBin: opts.claudeBin });
 
+/** Highest seq we've observed; sent back on reconnect as `sinceSeq` so the
+ *  server can replay messages that landed while we were disconnected. */
+let lastSeq = 0;
+
 const client = connect(opts.server, {
   onOpen: () => {
     console.log(`[runner] connected; joining room "${opts.room}" as ${userName}`);
@@ -46,6 +50,19 @@ const client = connect(opts.server, {
       userId: opts.user,
       userName,
       publicProfile: profile.publicYaml,
+    });
+  },
+  onReconnect: () => {
+    console.log(
+      `[runner] reconnected; resuming room "${opts.room}" (sinceSeq=${lastSeq})`,
+    );
+    client.send({
+      type: 'JOIN_ROOM',
+      roomId: opts.room,
+      userId: opts.user,
+      userName,
+      publicProfile: profile.publicYaml,
+      sinceSeq: lastSeq,
     });
   },
   onMessage: (msg: ServerToClient) => void handleServerMessage(msg),
@@ -71,10 +88,23 @@ async function handleServerMessage(msg: ServerToClient): Promise<void> {
         `[runner] participants: ${msg.participants.map((p) => p.userName).join(', ')}`,
       );
       break;
+    case 'ROOM_SNAPSHOT':
+      // Either late-joiner snapshot (last HISTORY_WINDOW) or reconnect replay
+      // (messages with seq > sinceSeq). Either way, advance lastSeq so the
+      // next disconnect asks for the right window.
+      for (const m of msg.history) {
+        if (m.seq > lastSeq) lastSeq = m.seq;
+        console.log(`[chat] ${m.userName}: ${m.content}`);
+      }
+      break;
     case 'ROOM_UPDATE':
+      if (msg.message.seq > lastSeq) lastSeq = msg.message.seq;
       console.log(`[chat] ${msg.message.userName}: ${msg.message.content}`);
       break;
     case 'YOUR_TURN': {
+      for (const m of msg.history) {
+        if (m.seq > lastSeq) lastSeq = m.seq;
+      }
       const prompt = buildTurnPrompt({
         selfUserId: opts.user,
         selfName: userName,

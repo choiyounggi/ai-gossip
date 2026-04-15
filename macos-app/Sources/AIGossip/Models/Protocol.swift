@@ -17,6 +17,33 @@ struct ServerChatMessageDTO: Codable {
     let userName: String
     let content: String
     let timestamp: String // ISO-8601
+    /// Server-assigned monotonic seq. Optional for backward compat: an older
+    /// server that hasn't been restarted with the reconnect patch will omit it.
+    /// Decoding to 0 keeps the live chat rendering; reconnect recovery is
+    /// degraded (falls back to "replay everything"), which is still safe.
+    let seq: Int
+
+    enum CodingKeys: String, CodingKey {
+        case userId, userName, content, timestamp, seq
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        userId = try c.decode(String.self, forKey: .userId)
+        userName = try c.decode(String.self, forKey: .userName)
+        content = try c.decode(String.self, forKey: .content)
+        timestamp = try c.decode(String.self, forKey: .timestamp)
+        seq = (try? c.decode(Int.self, forKey: .seq)) ?? 0
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(userId, forKey: .userId)
+        try c.encode(userName, forKey: .userName)
+        try c.encode(content, forKey: .content)
+        try c.encode(timestamp, forKey: .timestamp)
+        try c.encode(seq, forKey: .seq)
+    }
 }
 
 // MARK: - Client → Server
@@ -27,6 +54,9 @@ struct ClientJoinRoom: Encodable {
     let userId: String
     let userName: String
     let publicProfile: String
+    /// Reconnect hint — the server replays only messages with `seq > sinceSeq`.
+    /// nil on first connect; set on every reconnect so we don't lose anything.
+    let sinceSeq: Int?
 }
 
 struct ClientChatMessage: Encodable {

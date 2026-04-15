@@ -36,8 +36,8 @@ test('first-turn prompt flags that no conversation has started yet', () => {
 
 test('later-turn prompt includes formatted history', () => {
   const history: ChatMessage[] = [
-    { userId: 'alice', userName: '앨리스', content: '안녕', timestamp: 't1' },
-    { userId: 'bob', userName: '밥', content: '반가워', timestamp: 't2' },
+    { userId: 'alice', userName: '앨리스', content: '안녕', timestamp: 't1', seq: 1 },
+    { userId: 'bob', userName: '밥', content: '반가워', timestamp: 't2', seq: 2 },
   ];
   const out = buildTurnPrompt({
     selfUserId: 'alice',

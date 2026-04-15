@@ -68,6 +68,7 @@ struct RoomHeaderView: View {
         switch status {
         case .connected:           return DeskRPGTheme.accent
         case .connecting:          return .orange
+        case .reconnecting:        return .orange
         case .disconnected:        return .gray
         case .roomClosed:          return .red
         }
@@ -77,6 +78,7 @@ struct RoomHeaderView: View {
         switch status {
         case .connected:                return "연결됨"
         case .connecting:               return "연결 중…"
+        case .reconnecting:             return "재연결 중…"
         case .disconnected:             return "끊김"
         case .roomClosed(let reason):   return "종료 · \(reason)"
         }
