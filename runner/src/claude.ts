@@ -36,9 +36,17 @@ export function createClaudeRunner(opts: RunClaudeOptions = {}): ClaudeRunner {
   };
 }
 
+// gossip은 순수 텍스트 생성만 필요 → 모든 도구/사용자 MCP를 차단해 TCC 프롬프트(파일·음악 등) 억제.
+const GOSSIP_FLAGS = [
+  '--tools', '',
+  '--strict-mcp-config',
+  '--mcp-config', '{"mcpServers":{}}',
+  '--permission-mode', 'bypassPermissions',
+];
+
 function runOnce(bin: string, prompt: string, timeoutMs: number): Promise<string> {
   return new Promise((resolve, reject) => {
-    const child = spawn(bin, ['-p'], { stdio: ['pipe', 'pipe', 'pipe'] });
+    const child = spawn(bin, ['-p', ...GOSSIP_FLAGS], { stdio: ['pipe', 'pipe', 'pipe'] });
     let stdout = '';
     let stderr = '';
     const timer = setTimeout(() => {

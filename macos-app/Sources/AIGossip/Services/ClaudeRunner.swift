@@ -108,13 +108,20 @@ actor ClaudeRunner {
     private func runOnce(prompt: String) async throws -> String {
         let process = Process()
         activeProcess = process
+        // gossip은 순수 텍스트 생성만 필요 → 모든 도구/사용자 MCP를 차단해 TCC 프롬프트(파일·음악 등) 억제.
+        let gossipFlags = [
+            "--tools", "",
+            "--strict-mcp-config",
+            "--mcp-config", "{\"mcpServers\":{}}",
+            "--permission-mode", "bypassPermissions",
+        ]
         if let bin = options.binaryPath {
             process.executableURL = URL(fileURLWithPath: bin)
-            process.arguments = ["-p"]
+            process.arguments = ["-p"] + gossipFlags
         } else {
             // `/usr/bin/env` is guaranteed to exist; we hand it an enriched PATH.
             process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
-            process.arguments = ["claude", "-p"]
+            process.arguments = ["claude", "-p"] + gossipFlags
         }
 
         var env = ProcessInfo.processInfo.environment

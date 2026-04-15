@@ -78,6 +78,10 @@ test('gossip-mode framing & anti-patterns are always present', () => {
   assert.match(out, /프로필 조항 그대로 낭독 금지/);
   // 프라이버시 가드는 유지
   assert.match(out, /회사명.*실명.*내부 URL/);
+  // 사실 기반 규칙: 지어내기 금지
+  assert.match(out, /사실 기반 규칙/);
+  assert.match(out, /지어내지 마라/);
+  assert.match(out, /지어내기 금지/);
 });
 
 test('tone hints are explicit (반말, 짧게, 이름 부르기)', () => {
@@ -89,6 +93,7 @@ test('tone hints are explicit (반말, 짧게, 이름 부르기)', () => {
     history: [],
   });
   assert.match(out, /반말 또는 친한 동료 말투/);
-  assert.match(out, /1~3문장/);
+  assert.match(out, /1~2문장/);
   assert.match(out, /다른 참가자 이름을 부르며 반응/);
+  assert.match(out, /칭찬\/미화 금지/);
 });
