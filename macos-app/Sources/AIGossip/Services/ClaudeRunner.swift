@@ -93,6 +93,20 @@ actor ClaudeRunner {
         throw lastError ?? ClaudeRunnerError.timedOut(seconds: options.timeout)
     }
 
+    /// Fire a throwaway `claude -p` call at app startup so the plugin/MCP
+    /// boot path runs before the first real turn. This pre-triggers all
+    /// macOS TCC permission dialogs (음악, 파일, 미디어 등) on the splash
+    /// screen rather than mid-gossip. Result is discarded; all errors are
+    /// swallowed — a failed warmup isn't fatal, the real turn will surface
+    /// the same error via the fallback message.
+    func warmup() async {
+        do {
+            _ = try await runOnce(prompt: "say ready")
+        } catch {
+            print("[warmup] claude warmup failed (non-fatal): \(error.localizedDescription)")
+        }
+    }
+
     /// Kill any in-flight `claude -p` subprocess. Called from
     /// `RoomService.shutdown()` during app termination so the child process
     /// doesn't outlive the GUI. No-op if no process is running.

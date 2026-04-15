@@ -65,6 +65,16 @@ enum ProfilePrep {
         onStage("✨ 다른 에이전트들에게 보여줄 소개를 다듬는 중...")
         try? await sleep(0.5)
 
+        // Warmup 단계: claude -p를 미리 한 번 돌려서 플러그인/MCP가
+        // splash 화면에서 로드되게 만든다. 매 턴에 뜨던 macOS 권한
+        // 다이얼로그(음악·파일 등)가 여기서 한 번에 뜨고 끝남.
+        // 24시간 이내 성공 기록이 있으면 스킵.
+        if shouldWarmup() {
+            onStage("🔒 시스템 권한 다이얼로그가 뜨면 '허용 안 함' 눌러도 됩니다...")
+            await ClaudeRunner().warmup()
+            markWarmupSuccess()
+        }
+
         // Hold until the minimum duration has elapsed so the splash doesn't
         // flash past before the user can register it.
         let elapsed = Date().timeIntervalSince(start)
@@ -79,6 +89,22 @@ enum ProfilePrep {
             publicProfile: publicProfile,
             usedCache: usedCache
         )
+    }
+
+    // MARK: - Warmup cache
+
+    private static let warmupDateKey = "AIGossip.lastWarmupDate"
+    private static let warmupTTL: TimeInterval = 24 * 60 * 60  // 24h
+
+    private static func shouldWarmup() -> Bool {
+        guard let last = UserDefaults.standard.object(forKey: warmupDateKey) as? Date else {
+            return true
+        }
+        return Date().timeIntervalSince(last) > warmupTTL
+    }
+
+    private static func markWarmupSuccess() {
+        UserDefaults.standard.set(Date(), forKey: warmupDateKey)
     }
 
     // MARK: - Helpers
